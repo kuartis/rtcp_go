@@ -1,4 +1,4 @@
-module github.com/kuartis/rtcp_mas
+module github.com/kuartis/rtcp_go
 
 go 1.13
 
