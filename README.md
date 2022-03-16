@@ -17,6 +17,9 @@
 </p>
 <br>
 
+### Copied Project from:
+Pion RTCP Project, link is as follows: <i>https://github.com/pion/rtcp</i>
+
 See [DESIGN.md](DESIGN.md) for an overview of features and future goals.
 
 ### Roadmap
@@ -34,5 +37,3 @@ Check out the **[contributing wiki](https://github.com/pion/webrtc/wiki/Contribu
 
 ### License
 MIT License - see [LICENSE](LICENSE) for full text
-# rtcp_mas
-# rtcp_mas
