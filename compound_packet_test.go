@@ -15,21 +15,21 @@ func TestReadEOF(t *testing.T) {
 		0x81, 0xc9, // missing type & len
 	}
 
-	_, err := Unmarshal(shortHeader)
+	_, _, _, err := Unmarshal(shortHeader)
 	assert.Error(t, err)
 }
 
 func TestBadCompound(t *testing.T) {
 	// trailing data!
 	badcompound := realPacket()[:34]
-	packets, err := Unmarshal(badcompound)
+	packets, _, _, err := Unmarshal(badcompound)
 	assert.Error(t, err)
 
 	assert.Nil(t, packets)
 
 	badcompound = realPacket()[84:104]
 
-	packets, err = Unmarshal(badcompound)
+	packets, _, _, err = Unmarshal(badcompound)
 	assert.NoError(t, err)
 
 	compound := CompoundPacket(packets)

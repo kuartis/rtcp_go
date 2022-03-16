@@ -72,7 +72,7 @@ func realPacket() []byte {
 }
 
 func TestUnmarshal(t *testing.T) {
-	packet, err := Unmarshal(realPacket())
+	packet, _, _, err := Unmarshal(realPacket())
 	if err != nil {
 		t.Fatalf("Error unmarshalling packets: %s", err)
 	}
@@ -109,7 +109,7 @@ func TestUnmarshal(t *testing.T) {
 }
 
 func TestUnmarshalNil(t *testing.T) {
-	_, err := Unmarshal(nil)
+	_, _, _, err := Unmarshal(nil)
 	if got, want := err, errInvalidHeader; !errors.Is(got, want) {
 		t.Fatalf("Unmarshal(nil) err = %v, want %v", got, want)
 	}
@@ -122,7 +122,7 @@ func TestInvalidHeaderLength(t *testing.T) {
 		0x81, 0xc9, 0x0, 0x64,
 	}
 
-	_, err := Unmarshal(invalidPacket)
+	_, _, _, err := Unmarshal(invalidPacket)
 	if got, want := err, errPacketTooShort; !errors.Is(got, want) {
 		t.Fatalf("Unmarshal(nil) err = %v, want %v", got, want)
 	}

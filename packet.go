@@ -19,12 +19,16 @@ type Packet interface {
 // If this is a reduced-size RTCP packet a feedback packet (Goodbye, SliceLossIndication, etc)
 // will be returned. Otherwise, the underlying type of the returned packet will be
 // CompoundPacket.
-func Unmarshal(rawData []byte) ([]Packet, error) {
+func Unmarshal(rawData []byte) ([]Packet, uint64, uint32, error) {
 	var packets []Packet
 	for len(rawData) != 0 {
-		p, processed, err, ntpTimestamp := unmarshal(rawData)
+		p, processed, ntpTimestamp, packetCount, isSenderReport, err := unmarshal(rawData)
+
+		if isSenderReport && ntpTimestamp != 0 && packetCount != 0 && err != nil {
+			return nil, ntpTimestamp, packetCount, nil
+		}
 		if err != nil {
-			return nil, err
+			return nil, 0, 0, err
 		}
 
 		log.Println("NTP Timestamp")
@@ -39,10 +43,10 @@ func Unmarshal(rawData []byte) ([]Packet, error) {
 	switch len(packets) {
 	// Empty packet
 	case 0:
-		return nil, errInvalidHeader
+		return nil, 0, 0, errInvalidHeader
 	// Multiple Packets
 	default:
-		return packets, nil
+		return packets, 0, 0, nil
 	}
 }
 
@@ -61,17 +65,17 @@ func Marshal(packets []Packet) ([]byte, error) {
 
 // unmarshal is a factory which pulls the first RTCP packet from a bytestream,
 // and returns it's parsed representation, and the amount of data that was processed.
-func unmarshal(rawData []byte) (packet Packet, bytesprocessed int, err error, ntpTimestamp uint64) {
+func unmarshal(rawData []byte) (packet Packet, bytesprocessed int, ntpTimestamp uint64, packetCount uint32, isSenderReport bool, err error) {
 	var h Header
 
 	err = h.Unmarshal(rawData)
 	if err != nil {
-		return nil, 0, err, 0
+		return nil, 0, 0, 0, false, err
 	}
 
 	bytesprocessed = int(h.Length+1) * 4
 	if bytesprocessed > len(rawData) {
-		return nil, 0, errPacketTooShort, 0
+		return nil, 0, 0, 0, false, errPacketTooShort
 	}
 	inPacket := rawData[:bytesprocessed]
 
@@ -120,6 +124,8 @@ func unmarshal(rawData []byte) (packet Packet, bytesprocessed int, err error, nt
 		packet = new(RawPacket)
 	}
 
+	isSender := false
+
 	if h.Type == TypeSenderReport {
 		senderReport := new(SenderReport)
 		err_senderReport := senderReport.Unmarshal(inPacket)
@@ -129,12 +135,15 @@ func unmarshal(rawData []byte) (packet Packet, bytesprocessed int, err error, nt
 		}
 
 		ntpTimestamp = senderReport.NTPTime
+		packetCount = senderReport.PacketCount
+		isSender = true
 		err = packet.Unmarshal(inPacket)
 
 	} else {
 		err = packet.Unmarshal(inPacket)
 		ntpTimestamp = 0
+		packetCount = 0
 	}
 
-	return packet, bytesprocessed, err, ntpTimestamp
+	return packet, bytesprocessed, ntpTimestamp, packetCount, isSender, err
 }
