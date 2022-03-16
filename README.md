@@ -18,7 +18,7 @@
 <br>
 
 ### Copied Project from:
-Pion RTCP Project, link is as follows: <i>https://github.com/pion/rtcp</i>
+Pion RTCP Project, link is as follows: <a href="https://github.com/pion/rtcp">https://github.com/pion/rtcp</a>
 
 See [DESIGN.md](DESIGN.md) for an overview of features and future goals.
 
