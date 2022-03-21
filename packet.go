@@ -24,17 +24,12 @@ func Unmarshal(rawData []byte) ([]Packet, uint64, uint32, error) {
 	for len(rawData) != 0 {
 		p, processed, ntpTimestamp, packetCount, isSenderReport, err := unmarshal(rawData)
 
-		if isSenderReport && ntpTimestamp != 0 && packetCount != 0 && err != nil {
+		if isSenderReport && ntpTimestamp != 0 && packetCount != 0 {
 			return nil, ntpTimestamp, packetCount, nil
 		}
 		if err != nil {
 			return nil, 0, 0, err
 		}
-
-		log.Println("NTP Timestamp")
-		log.Println(ntpTimestamp)
-		log.Println("Packet")
-		log.Println(p)
 
 		packets = append(packets, p)
 		rawData = rawData[processed:]
