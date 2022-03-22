@@ -2,7 +2,6 @@ package rtcp
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -112,12 +111,7 @@ func (c CompoundPacket) Marshal() ([]byte, error) {
 func (c *CompoundPacket) Unmarshal(rawData []byte) error {
 	out := make(CompoundPacket, 0)
 	for len(rawData) != 0 {
-		p, processed, ntpTimestamp, packetCount, _, err := unmarshal(rawData)
-
-		log.Println("Compound_packet ntptimestamp")
-		log.Println(ntpTimestamp)
-		log.Println("Compound_packet packetCount")
-		log.Println(packetCount)
+		p, processed, _, _, _, err := unmarshal(rawData)
 
 		if err != nil {
 			return err
